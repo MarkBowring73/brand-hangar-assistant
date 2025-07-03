@@ -10,6 +10,9 @@ const PORT = process.env.PORT || 3001;
 const MINTSOFT_API_KEY = process.env.MINTSOFT_API_KEY;
 
 // ✅ Open CORS to allow all origins
+// ✅ Open CORS to allow all origins (added for frontend testing)
+app.use(cors());
+
 app.use(cors());
 
 // 2. Route
