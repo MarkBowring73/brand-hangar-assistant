@@ -12,7 +12,8 @@ export default function OrderLookup() {
       const data = await response.json();
 
       if (response.ok) {
-        setOrderData(data[0]);
+        setOrderData(Array.isArray(data) ? data[0] : data);
+
         setError(null);
       } else {
         setError(data.error?.MessageDetail || 'Error fetching order');
