@@ -12,8 +12,14 @@ export default function OrderLookup() {
 
       if (response.ok) {
         const order = Array.isArray(data) ? data[0] : data;
-        setOrderData(order && order.OrderNumber ? order : null);
-        setError(null);
+
+        if (order && order.OrderNumber) {
+          setOrderData(order);
+          setError(null);
+        } else {
+          setOrderData(null);
+          setError("No order found with that number.");
+        }
       } else {
         setError(data.error?.MessageDetail || 'Error fetching order');
         setOrderData(null);
@@ -71,7 +77,7 @@ export default function OrderLookup() {
 
       {error && <p className="text-red-500 mt-4">{error}</p>}
 
-      {orderData ? (
+      {orderData && (
         <div className="mt-6 border p-4 rounded bg-gray-50">
           <h3 className="text-lg font-semibold mb-2">Order: {orderData.OrderNumber}</h3>
           <p><strong>Name:</strong> {orderData.FirstName} {orderData.LastName}</p>
@@ -99,8 +105,6 @@ export default function OrderLookup() {
             </p>
           )}
         </div>
-      ) : (
-        !error && <p className="text-red-400 mt-4">No order found with that number.</p>
       )}
     </div>
   );
