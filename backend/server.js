@@ -9,11 +9,14 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const MINTSOFT_API_KEY = process.env.MINTSOFT_API_KEY;
 
-// ✅ Open CORS to allow all origins
-// ✅ Open CORS to allow all origins (added for frontend testing)
-app.use(cors());
-
-app.use(cors());
+// ✅ Explicit CORS setup for Vercel + localhost
+app.use(cors({
+  origin: [
+    'https://brand-hangar-assistant.vercel.app',
+    'http://localhost:3000'
+  ],
+  methods: ['GET']
+}));
 
 // 2. Route
 app.get('/api/order', async (req, res) => {
