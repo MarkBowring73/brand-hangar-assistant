@@ -18,9 +18,12 @@ export default function OrderLookup() {
         setError(data.error?.MessageDetail || 'Error fetching order');
         setOrderData(null);
       }
-    } catch (err) {
-      setError('Network error');
-      setOrderData(null);
+    } } catch (err) {
+  console.log('Fetch error:', err);
+  setError(`Network error: ${err.message}`);
+  setOrderData(null);
+}
+
     }
   };
 
