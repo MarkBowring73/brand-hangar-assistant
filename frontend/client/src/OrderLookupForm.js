@@ -7,7 +7,11 @@ export default function OrderLookup() {
 
   const fetchOrder = async () => {
     try {
-      const response = await fetch(`https://backend-api-xlt6.onrender.com/api/order?ordernumber=${orderNumber}`);
+      const response = await fetch(`https://backend-api-xlt6.onrender.com/api/order?ordernumber=${orderNumber}`, {
+        method: 'GET',
+        mode: 'cors'
+      });
+
       const data = await response.json();
 
       if (response.ok) {
