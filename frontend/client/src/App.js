@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import OrderLookup from './OrderLookupForm';
 
 function App() {
   useEffect(() => {
@@ -16,7 +17,7 @@ function App() {
 
   return (
     <div className="App">
-      {/* Your app content */}
+      <OrderLookup />
     </div>
   );
 }
