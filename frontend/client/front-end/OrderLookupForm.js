@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, ScrollView, Linking, StyleSheet } from 'react-native';
 
 export default function OrderLookup() {
@@ -6,31 +6,44 @@ export default function OrderLookup() {
   const [orderData, setOrderData] = useState(null);
   const [error, setError] = useState(null);
 
+  useEffect(() => {
+    console.log('✅ OrderLookup component loaded');
+  }, []);
+
   const fetchOrder = async () => {
     try {
+      const trimmed = orderNumber.trim().toLowerCase();
+      console.log('🔍 Searching for:', trimmed);
+
       const response = await fetch(`https://brand-hangar-backend.onrender.com/api/order?ordernumber=${orderNumber}`, {
         method: 'GET',
         mode: 'cors'
       });
 
       const data = await response.json();
+      console.log('📦 API returned:', data);
 
-      if (response.ok) {
-        const order = Array.isArray(data) ? data[0] : data;
+      if (Array.isArray(data)) {
+        const matched = data.find(o => o.OrderNumber?.toLowerCase() === trimmed);
 
-        if (order && order.OrderNumber) {
-          setOrderData(order);
+        if (matched) {
+          console.log('✅ Match found:', matched);
+          setOrderData(matched);
           setError(null);
         } else {
+          console.log('❌ No exact match for:', trimmed);
           setOrderData(null);
-          setError("No order found with that number.");
+          setError("No exact match found for that order number.");
         }
+      } else if (data?.OrderNumber?.toLowerCase() === trimmed) {
+        setOrderData(data);
+        setError(null);
       } else {
-        setError(data.error?.MessageDetail || 'Error fetching order');
         setOrderData(null);
+        setError("No order found with that number.");
       }
     } catch (err) {
-      console.log('Fetch error:', err);
+      console.error('❌ Fetch error:', err);
       setError(`Network error: ${err.message}`);
       setOrderData(null);
     }
@@ -68,13 +81,15 @@ export default function OrderLookup() {
         style={styles.input}
       />
 
-      <Button title="Search" onPress={fetchOrder} color="#2563eb" />
+      <View style={styles.buttonWrapper}>
+        <Button title="Search" onPress={fetchOrder} color="#2563eb" />
+      </View>
 
       {error && <Text style={styles.error}>{error}</Text>}
 
       {orderData && (
-        <View style={styles.card}>
-          <Text style={styles.heading}>Order: {orderData.OrderNumber}</Text>
+        <View style={styles.result}>
+          <Text style={styles.resultTitle}>Order: {orderData.OrderNumber}</Text>
           <Text>Name: {orderData.FirstName} {orderData.LastName}</Text>
           <Text>Email: {orderData.Email}</Text>
 
@@ -91,9 +106,9 @@ export default function OrderLookup() {
             </Text>
           </View>
 
-          <Text style={styles.detail}>Total Items: {orderData.TotalItems}</Text>
-          <Text style={styles.detail}>Value: £{orderData.OrderValue}</Text>
-          <Text style={styles.detail}>Shipping: {orderData.Address1}, {orderData.Town}, {orderData.PostCode}</Text>
+          <Text>Total Items: {orderData.TotalItems}</Text>
+          <Text>Value: £{orderData.OrderValue}</Text>
+          <Text>Shipping: {orderData.Address1}, {orderData.Town}, {orderData.PostCode}</Text>
 
           {orderData.TrackingURL && (
             <Text
@@ -112,62 +127,60 @@ export default function OrderLookup() {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fff',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16
+    marginBottom: 16,
   },
   input: {
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 6,
     padding: 10,
-    marginBottom: 16,
-    fontSize: 18
+    fontSize: 18,
+  },
+  buttonWrapper: {
+    marginTop: 10,
   },
   error: {
-    color: 'red',
     marginTop: 16,
-    fontSize: 16
+    color: 'red',
+    fontSize: 16,
   },
-  card: {
+  result: {
     marginTop: 20,
     padding: 16,
+    backgroundColor: '#f9fafb',
     borderRadius: 8,
-    backgroundColor: '#f9fafb'
   },
-  heading: {
+  resultTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 6
-  },
-  detail: {
-    fontSize: 16,
-    marginTop: 4
+    marginBottom: 6,
   },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8
+    marginTop: 8,
   },
   statusLabel: {
     fontWeight: 'bold',
     marginRight: 8,
-    fontSize: 16
+    fontSize: 16,
   },
   statusBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
     fontWeight: '600',
-    fontSize: 14
+    fontSize: 14,
   },
   link: {
     color: '#2563eb',
+    marginTop: 10,
     textDecorationLine: 'underline',
-    marginTop: 12,
-    fontSize: 16
-  }
+    fontSize: 16,
+  },
 });
